@@ -9,6 +9,14 @@ public class HomeController {
     @GetMapping("/")
     public String home()
     {
+
         return "Welcome to Trade Shift";
     }
+    @GetMapping("/api")
+    public String secure()
+    {
+
+        return "Welcome to Trade Shift secure";
+    }
 }
+
