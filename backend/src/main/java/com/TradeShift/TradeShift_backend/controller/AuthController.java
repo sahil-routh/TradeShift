@@ -4,6 +4,7 @@ import com.TradeShift.TradeShift_backend.Model.User;
 import com.TradeShift.TradeShift_backend.config.JwtProvider;
 import com.TradeShift.TradeShift_backend.repository.UserRepository;
 import com.TradeShift.TradeShift_backend.response.AuthResponse;
+import com.TradeShift.TradeShift_backend.service.PortfolioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PortfolioService portfolioService;
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> register(@RequestBody User user) throws Exception {
@@ -39,6 +43,8 @@ public class AuthController {
 
         User savedUser=userRepository.save(newUser);
 
+        portfolioService.createPortfolioForUser(savedUser);
+
         Authentication auth=new UsernamePasswordAuthenticationToken(
                 user.getEmail(),
                 user.getPassword()
@@ -52,10 +58,6 @@ public class AuthController {
         res.setJwt(jwt);
         res.setStatus(true);
         res.setMessage("Register Success");
-
-
-
-
 
         return new ResponseEntity<>(res, HttpStatus.CREATED);
     }
