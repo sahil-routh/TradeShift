@@ -1,4 +1,4 @@
-package com.TradeShift.TradeShift_backend.Model;
+package com.TradeShift.TradeShift_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

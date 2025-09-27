@@ -1,7 +1,7 @@
 package com.TradeShift.TradeShift_backend.service;
 
-import com.TradeShift.TradeShift_backend.Model.ForgotPasswordToken;
-import com.TradeShift.TradeShift_backend.Model.User;
+import com.TradeShift.TradeShift_backend.model.ForgotPasswordToken;
+import com.TradeShift.TradeShift_backend.model.User;
 import com.TradeShift.TradeShift_backend.domain.VerificationType;
 import com.TradeShift.TradeShift_backend.repository.ForgotPasswordRepository;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package com.TradeShift.TradeShift_backend.service;
 
-import com.TradeShift.TradeShift_backend.Model.TwoFactorAuth;
-import com.TradeShift.TradeShift_backend.Model.User;
+import com.TradeShift.TradeShift_backend.model.TwoFactorAuth;
+import com.TradeShift.TradeShift_backend.model.User;
 import com.TradeShift.TradeShift_backend.config.JwtProvider;
 import com.TradeShift.TradeShift_backend.domain.VerificationType;
 import com.TradeShift.TradeShift_backend.repository.UserRepository;

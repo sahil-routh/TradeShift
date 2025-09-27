@@ -1,4 +1,4 @@
-package com.TradeShift.TradeShift_backend.Model;
+package com.TradeShift.TradeShift_backend.model;
 
 import com.TradeShift.TradeShift_backend.domain.USER_ROLE;
 import com.fasterxml.jackson.annotation.JsonProperty;

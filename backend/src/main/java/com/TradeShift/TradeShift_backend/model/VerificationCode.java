@@ -1,4 +1,4 @@
-package com.TradeShift.TradeShift_backend.Model;
+package com.TradeShift.TradeShift_backend.model;
 
 import com.TradeShift.TradeShift_backend.domain.VerificationType;
 import jakarta.persistence.*;
@@ -6,18 +6,21 @@ import lombok.Data;
 
 @Entity
 @Data
-public class ForgotPasswordToken {
+public class VerificationCode {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String id;
+    private Long id;
+
+    private String otp;
 
     @OneToOne
     private User user;
 
-    private String otp;
+    private String email;
+
+    private String mobile;
+
 
     private VerificationType verificationType;
-
-    private String sendTo;
 }

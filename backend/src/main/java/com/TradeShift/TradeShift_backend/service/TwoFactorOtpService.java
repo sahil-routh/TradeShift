@@ -1,7 +1,7 @@
 package com.TradeShift.TradeShift_backend.service;
 
-import com.TradeShift.TradeShift_backend.Model.TwoFactorOTP;
-import com.TradeShift.TradeShift_backend.Model.User;
+import com.TradeShift.TradeShift_backend.model.TwoFactorOTP;
+import com.TradeShift.TradeShift_backend.model.User;
 
 public interface TwoFactorOtpService {
 

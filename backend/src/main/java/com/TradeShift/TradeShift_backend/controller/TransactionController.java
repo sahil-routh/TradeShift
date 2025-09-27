@@ -1,12 +1,11 @@
 package com.TradeShift.TradeShift_backend.controller;
 
 import com.TradeShift.TradeShift_backend.model.Portfolio;
+import com.TradeShift.TradeShift_backend.model.Transaction;
 import com.TradeShift.TradeShift_backend.model.User;
-import com.TradeShift.TradeShift_backend.request.DepositRequest; // New Import
 import com.TradeShift.TradeShift_backend.response.ApiResponse;
-import com.TradeShift.TradeShift_backend.response.PortfolioSummaryResponse;
-import com.TradeShift.TradeShift_backend.service.AssetService;
 import com.TradeShift.TradeShift_backend.service.PortfolioService;
+import com.TradeShift.TradeShift_backend.service.TransactionService;
 import com.TradeShift.TradeShift_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,10 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/portfolio")
-public class PortfolioController {
+@RequestMapping("/api/transactions")
+public class TransactionController {
 
     @Autowired
     private UserService userService;
@@ -26,7 +26,7 @@ public class PortfolioController {
     private PortfolioService portfolioService;
 
     @Autowired
-    private AssetService assetService;
+    private TransactionService transactionService;
 
     private User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -40,41 +40,17 @@ public class PortfolioController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getPortfolioSummary() {
+    public ResponseEntity<?> getTransactionHistory() {
         User currentUser = getCurrentUser();
         if (currentUser == null) {
             return new ResponseEntity<>(new ApiResponse(false, "Authentication failed."), HttpStatus.UNAUTHORIZED);
         }
         try {
             Portfolio portfolio = portfolioService.getPortfolioForUser(currentUser);
-
-            // Recalculate the value to ensure it's up to date
-            portfolioService.recalculatePortfolioValue(portfolio);
-
-            PortfolioSummaryResponse summary = new PortfolioSummaryResponse();
-            summary.setCashBalance(portfolio.getCashBalance());
-            summary.setTotalPortfolioValue(portfolio.getTotalValue());
-            summary.setAssets(assetService.getAssetsForPortfolio(portfolio));
-
-            return new ResponseEntity<>(summary, HttpStatus.OK);
+            List<Transaction> transactions = transactionService.getTransactionsForPortfolio(portfolio);
+            return new ResponseEntity<>(transactions, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    // *** NEW: The deposit endpoint is now correctly located here ***
-    @PostMapping("/deposit")
-    public ResponseEntity<?> deposit(@RequestBody DepositRequest req) {
-        User user = getCurrentUser();
-        if (user == null) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
-        Portfolio p = portfolioService.getPortfolioForUser(user);
-        if (req.getAmount() <= 0) {
-            return ResponseEntity.badRequest().body("Amount must be > 0");
-        }
-        p.setCashBalance(p.getCashBalance() + req.getAmount());
-        portfolioService.recalculatePortfolioValue(p);
-        return ResponseEntity.ok(p);
     }
 }

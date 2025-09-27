@@ -1,8 +1,8 @@
 package com.TradeShift.TradeShift_backend.service;
 
-import com.TradeShift.TradeShift_backend.Model.Asset;
-import com.TradeShift.TradeShift_backend.Model.Portfolio;
-import com.TradeShift.TradeShift_backend.Model.User;
+import com.TradeShift.TradeShift_backend.model.Asset;
+import com.TradeShift.TradeShift_backend.model.Portfolio;
+import com.TradeShift.TradeShift_backend.model.User;
 import com.TradeShift.TradeShift_backend.repository.AssetRepository;
 import com.TradeShift.TradeShift_backend.repository.PortfolioRepository;
 import com.TradeShift.TradeShift_backend.repository.UserRepository;

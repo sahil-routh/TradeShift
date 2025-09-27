@@ -1,6 +1,6 @@
 package com.TradeShift.TradeShift_backend.service;
 
-import com.TradeShift.TradeShift_backend.Model.User;
+import com.TradeShift.TradeShift_backend.model.User;
 import com.TradeShift.TradeShift_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;

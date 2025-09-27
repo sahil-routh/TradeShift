@@ -1,7 +1,7 @@
 package com.TradeShift.TradeShift_backend.service;
 
-import com.TradeShift.TradeShift_backend.Model.TwoFactorOTP;
-import com.TradeShift.TradeShift_backend.Model.User;
+import com.TradeShift.TradeShift_backend.model.TwoFactorOTP;
+import com.TradeShift.TradeShift_backend.model.User;
 import com.TradeShift.TradeShift_backend.repository.TwoFactorOtpRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
