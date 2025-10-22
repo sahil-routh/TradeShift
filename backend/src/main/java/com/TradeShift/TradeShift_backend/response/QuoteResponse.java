@@ -9,4 +9,8 @@ public class QuoteResponse {
     private double l;  // low price of the day
     private double o;  // open price of the day
     private double pc; // previous close price
+
+    private double D;
+    private double Dp;
+
 }

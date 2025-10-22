@@ -12,5 +12,7 @@ public interface UserService {
 
     User updatePassword(User user, String newPassword);
 
+    User registerUser(User user);
+
 
 }

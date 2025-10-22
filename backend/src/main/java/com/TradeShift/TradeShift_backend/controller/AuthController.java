@@ -6,19 +6,16 @@ import com.TradeShift.TradeShift_backend.model.User;
 import com.TradeShift.TradeShift_backend.config.JwtProvider;
 import com.TradeShift.TradeShift_backend.repository.UserRepository;
 import com.TradeShift.TradeShift_backend.response.AuthResponse;
-import com.TradeShift.TradeShift_backend.service.PortfolioService;
-import com.TradeShift.TradeShift_backend.service.CustomUserDetailsService;
+import com.TradeShift.TradeShift_backend.service.UserService; // CRITICAL: Need UserService
 import com.TradeShift.TradeShift_backend.service.EmailService;
 import com.TradeShift.TradeShift_backend.service.TwoFactorOtpService;
 import com.TradeShift.TradeShift_backend.utils.OtpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-// IMPORTANT: Add these three imports for Spring Authentication
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-// -----------------------------------------------------------
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,21 +29,23 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private PortfolioService portfolioService;
+    // Remove unused dependencies to clean up the code
+    // @Autowired
+    // private PortfolioService portfolioService;
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    // @Autowired
+    // private CustomUserDetailsService customUserDetailsService;
 
-    // -----------------------------------------------------------
-    // Inject the AuthenticationManager bean from SecurityConfig
+    // --- CRITICAL FIX 1: Inject UserService to access the correct registration flow ---
+    @Autowired
+    private UserService userService;
+    // ----------------------------------------------------------------------------------
+
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    // Inject PasswordEncoder to hash passwords on signup
     @Autowired
     private PasswordEncoder passwordEncoder;
-    // -----------------------------------------------------------
 
     @Autowired
     private TwoFactorOtpService twoFactorOtpService;
@@ -68,33 +67,42 @@ public class AuthController {
 
         User newUser = new User();
         newUser.setEmail(user.getEmail());
-        // -----------------------------------------------------------
-        // FIX 1: Hash the password before saving to the database
-        String hashedPassword = passwordEncoder.encode(user.getPassword());
-        newUser.setPassword(hashedPassword);
-        // -----------------------------------------------------------
         newUser.setFullName(user.getFullName());
 
-        User savedUser = userRepository.save(newUser);
+        // --- FIX 2: Hash the password and set it on the new User object ---
+        String rawPassword = user.getPassword(); // Assuming the incoming user object has the raw password
+        newUser.setPassword(passwordEncoder.encode(rawPassword));
 
-        portfolioService.createPortfolioForUser(savedUser);
+        // --- CRITICAL FIX 3: Use the dedicated UserService method ---
+        // This method handles saving the user AND calling PortfolioService to create the portfolio.
+        User registeredUser = userService.registerUser(newUser);
 
-        // Authenticate the newly registered user
+        // Authenticate the newly registered user by loading their UserDetails
+        UserDetails userDetails = (UserDetails) registeredUser;
+
+        // Create an Authentication object using the UserDetails
         Authentication auth = new UsernamePasswordAuthenticationToken(
-                user.getEmail(),
-                user.getPassword()
+                userDetails,
+                rawPassword, // Use the raw password here for AuthenticationManager to compare
+                userDetails.getAuthorities()
         );
-        // Note: Spring will successfully authenticate here because the password encoder is used
-        // throughout the process.
 
+        // Set the Authentication in the Security Context
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        String jwt = JwtProvider.generateToken(auth);
+        // --- FIX 4: Use the registeredUser object (which is a UserDetails now) to generate JWT ---
+        String jwt = jwtService.generateToken((UserDetails) registeredUser);
+        // ----------------------------------------------------------------------------------------
 
         AuthResponse res = new AuthResponse();
         res.setJwt(jwt);
         res.setStatus(true);
         res.setMessage("Register Success");
+        // Add user details to response for frontend
+        res.setUserId(registeredUser.getId());
+        res.setEmail(registeredUser.getEmail());
+        res.setFullName(registeredUser.getFullName());
+
 
         return new ResponseEntity<>(res, HttpStatus.CREATED);
     }
@@ -105,18 +113,13 @@ public class AuthController {
         String userName = user.getEmail();
         String password = user.getPassword();
 
-        // -----------------------------------------------------------
-        // FIX 2: Delegate authentication to Spring's AuthenticationManager.
-        // This manager uses the AuthenticationProvider (defined in SecurityConfig)
-        // to call the CustomUserDetailsService and use the BCryptPasswordEncoder
-        // to compare the password hash.
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userName, password)
         );
-        // -----------------------------------------------------------
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        // The authentication.getPrincipal() returns UserDetails, which is required by jwtService
         String jwt = jwtService.generateToken((UserDetails) authentication.getPrincipal());
 
 
@@ -147,27 +150,15 @@ public class AuthController {
         res.setJwt(jwt);
         res.setStatus(true);
         res.setMessage("login Success");
+        // Add user details to response
+        if (authuser != null) {
+            res.setUserId(authuser.getId());
+            res.setEmail(authuser.getEmail());
+            res.setFullName(authuser.getFullName());
+        }
 
         return new ResponseEntity<>(res, HttpStatus.CREATED);
     }
-
-    // -----------------------------------------------------------
-    // FIX 3: DELETE this private authenticate method. It is no longer needed
-    // because you are using the Spring AuthenticationManager.
-    /*
-    private Authentication authenticate(String userName, String password) {
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(userName);
-
-        if (userDetails == null) {
-            throw new BadCredentialsException("invalid user");
-        }
-        if (!password.equals(userDetails.getPassword())) {
-            throw new BadCredentialsException("invalid password");
-        }
-        return new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
-    }
-    */
-    // -----------------------------------------------------------
 
     @PostMapping("/two-factor/otp/{otp}")
     public ResponseEntity<AuthResponse> verifySignInOtp(
@@ -185,5 +176,4 @@ public class AuthController {
         }
         throw new Exception("invalid otp");
     }
-
 }

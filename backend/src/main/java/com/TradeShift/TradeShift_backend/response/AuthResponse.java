@@ -10,4 +10,9 @@ public class AuthResponse {
     private  String message;
     private boolean isTwoFactorAuthEnabled;
     private String session;
+
+
+    private Long userId;        // The ID of the authenticated user
+    private String email;       // The email of the authenticated user
+    private String fullName;
 }
