@@ -92,8 +92,8 @@ cd TradeShift
 * **LinkedIn:** [pravinsundarm](http://www.linkedin.com/in/pravinsundarm)
 * **GitHub:** [PravinSundarM](https://github.com/PravinSundarM)
 
-  **LinkedIn:**[Sahil-routh](https://www.linkedin.com/in/sahil-routh-51909535a/)
-  **GitHib:**[sahil-routh](https://github.com/sahil-routh)
+*  **LinkedIn:**[Sahil-routh](https://www.linkedin.com/in/sahil-routh-51909535a/)
+*  **GitHib:**[sahil-routh](https://github.com/sahil-routh)
 ---
 
 
